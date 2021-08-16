@@ -1,0 +1,236 @@
+---
+runtime: shiny
+output: html_document
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r cars, echo=FALSE,results = 'hide', include=FALSE}
+library(shiny)
+library(shinyjs)
+options(shiny.port = 8888)
+library(shinythemes)
+
+options(shiny.host = "192.0.0.45")
+```
+
+
+
+```{r, echo=FALSE}
+ui <- fluidPage(theme = shinytheme("united"),
+  titlePanel(h1("CovClassifier-Covid-19 Risk Classifier") ),
+  
+  sidebarLayout(
+    
+    sidebarPanel(
+      fluidRow(
+        column(1, offset = -1,
+      actionButton("button1", "About CovClassifier", class = "btn-primary",
+                   style = "color: white; 
+                   
+                 
+                   left: 3%; 
+                   height: 40px; 
+                   width: 150px; 
+                   text-align:center; 
+                   text-indent: -2px; 
+                   border-radius: 6px; 
+                   border-width: 2px;
+                   margin:5px"))),
+     
+        fluidRow(
+           column(1, offset = -1,
+      actionButton("button2", "Upload a sample",  class = "btn-primary",
+                   style = "color: white; 
+           
+                   left: 3%; 
+                   height: 40px; 
+                   width: 150px; 
+                   text-align:center; 
+                   text-indent: -2px; 
+                   border-radius: 6px; 
+                   border-width: 2px;
+                   margin:5px"))),
+      fluidRow(
+           column(1, offset = -1,
+      actionButton("button4", "Input Data",  class = "btn-primary",
+                   style = "color: white; 
+           
+                   left: 3%; 
+                   height: 40px; 
+                   width: 150px; 
+                   text-align:center; 
+                   text-indent: -2px; 
+                   border-radius: 6px; 
+                   border-width: 2px;
+                   margin:5px"))),
+      
+        fluidRow(
+          column(1, offset = -1,
+      actionButton("button3", "How to use",  class = "btn-primary",
+                   style = "color: white; 
+             
+                   left: 3%; 
+                   height: 40px; 
+                   width: 150px; 
+                   text-align:center; 
+                   text-indent: -2px; 
+                   border-radius: 6px; 
+                   border-width: 2px;
+                   margin:5px"))),
+     
+      width = 3
+      
+    ),
+    
+    mainPanel(
+      htmlOutput("selected_var"),
+     
+    )
+  ),
+  
+  tags$head(tags$style(HTML("
+  body{
+  zoom: 0.7; /* Other non-webkit browsers */
+  zoom: 70%; /* Webkit browsers */
+  background-color: #f0f8ff;
+  color: black;
+  }"
+  )))
+  
+)
+```
+
+
+```{r pressure, echo=FALSE}
+server <- function(input, output) {
+  
+  observeEvent(input$button1, {
+   output$selected_var <- renderUI({
+     
+     HTML(paste("<h2>About CovClassifier </h2> The CovClassifier helps doctors and nurses predict the severity of the covid-19 disease that hospital patients are infected with based on gene expression markers. The gene expression markers consist of the patients plasma proteins and metabolites.", "<h2>Source of data </h2>The data used as training and testing sets for the CovClassifier is collected from Su et al., Cell . Multi-Omics Resolves a Sharp Disease-State Shift between Mild and Moderate COVID-19. Cell. 2020 Dec 10;183(6):1479-1495.e20. doi: 10.1016/j.cell.2020.10.037. Epub 2020 Oct 28. PMID: 33171100; PMCID: PMC7598382.", sep = '<br/><br/>'))
+     
+  })
+  })
+  
+   observeEvent(input$button3, {
+   output$selected_var <- renderUI({
+     
+     HTML(paste("<h2>How to use the risk calculator</h2>
+
+The risk calculator requires the user to upload a sample of a patients gene expression data, such as their preotomic and metabolic data, consisting of a set of pre defined genes. The calculator will then calculate the severity of the covid-19 disease that the patient has based on the given gene expression.
+
+<h3>Step 1. Upload Gene expression data</h3>
+
+On the left panel, there is a button named “upload a sample”, click on it to show the upload panel for the gene expression. The input of the data should typically have the rows as the samples of the patients. The classifier only accepts .csv and excel files .
+
+
+<h3>Step 2. Previewing the Gene expression data</h3>
+
+After successfully uploading the gene expression data,a preview of the sample of the data you uploaded is shown to allow you to see if it’s correct.
+
+
+<h3>Step 3.  View the severity results.</h3>
+
+Below the preview of the sample data uploaded, the results of the predicted severity of the disease of the sample patient are shown. The results will either show “severe” which indicates that the covid-19 disease that the patient suffers from is severe and dangerous, and “moderate” which means that the covid-19 disease that the patient suffers from is moderate", sep = '<br/><br/>'))
+     
+  })
+  })
+  
+  observeEvent(input$button2, {
+   output$selected_var <- renderUI({
+mainPanel(
+     fileInput('file', HTML(paste("<h2>Upload your sample: </h2> <br/>Upload a csv or excel file (Data needs to be uploaded with sample patients as rows and in .csv or .xlsx files)<br/>  ", sep = '<br/><br/> ')), accept=c( "text/csv",
+          "text/comma-separated-values","text/plain",".csv", '.xlsx') ), tableOutput("contents"))
+  })
+  
+ output$contents <- renderTable({
+    # input$file1 will be NULL initially. After the user selects
+    # and uploads a file, it will be a data frame with 'name',
+    # 'size', 'type', and 'datapath' columns. The 'datapath'
+    # column will contain the local filenames where the data can
+    # be found.
+    inFile <- input$file
+
+    if (is.null(inFile))
+      return(NULL)
+
+    read.csv(inFile$datapath, header =TRUE )
+    
+  })
+  })
+  
+  observeEvent(input$button4, {
+   output$selected_var <- renderUI({
+     
+     
+     
+     mainPanel(
+       HTML(paste("<h2>Input Data </h2> You can input the value for the variables below<br><br>.", sep = '<br/><br/>')),
+       
+       numericInput("obs", "severity_who:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+       numericInput("obs", "sex:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+       numericInput("obs", "age:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "bmi:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "asthma:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "cancer:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "chronic_hypertension:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "cigarette_smoking:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "chronic_kidney_disease:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "congestive_heart_failure:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "copd:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "coronary_artery_disease:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "temperature:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "systolic_blood_pressure:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      numericInput("obs", "diastolic_blood_pressure:", 10, min = 1, max = 10),
+      verbatimTextOutput("value"),
+      
+      
+     )
+     
+  })
+  })
+  
+   
+}
+```
+
+
+
+```{r, echo=FALSE}
+shinyApp(ui = ui, server = server)
+```
+
+

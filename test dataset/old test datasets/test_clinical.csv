@@ -1,0 +1,5 @@
+sex,age,bmi,asthma,cancer,chronic_hypertension,cigarette_smoking,chronic_kidney_disease,congestive_heart_failure,copd,coronary_artery_disease,temperature,systolic_blood_pressure,diastolic_blood_pressure
+Female,77,33.65778285,No,No,Yes,Never,No,No,No,No,36.6,139,60
+Female,77,33.65778285,No,No,Yes,Never,No,No,No,No,36.3,140,76
+Male,64,24.54698787,No,No,Yes,Never,Yes,No,No,No,37.2,89,50
+Male,64,25.68576566,No,No,Yes,Never,Yes,No,No,No,36.8,97,61
